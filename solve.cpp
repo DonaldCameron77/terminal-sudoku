@@ -16,6 +16,51 @@ using namespace std;
    algorithm takes over.
    Cf. http://www.sudokudragon.com/sudokustrategy.htm, though most
    authorities use different names for many of the techniques.
+
+   The spin on this program may be learning how to do easier to medium
+   puzzles on paper (though newspaper puzzles labelled 'evil' are generally
+   easier than the harder puzzles today's apps provide).
+
+   Techniques:
+		- Name??: Only one choice for cell when considering all neighbors: equivalent to
+		  naked single where there is more than one empty cell in the surrounding
+		  block, row, and column. Appears to the program as a Naked Single.
+		- Full House: Only one choice for cell when considering only its row, or only
+		  its column, or only its block.  This is a "Full House" condition and again shows up
+		  as a Naked Single.
+		- Scanning or Crosshatching (Block): When considering each value (in turn) in or
+		  intersecting a block, there is only one cell in the block which can have the
+		  current value. Equivalent to Hidden Single.
+		- Scanning or Crosshatching (Row, Column): When considering each value (in turn) in or
+		  intersecting a row or column, there is only one cell in the row or column  which can
+		  have the current value. Equivalent to Hidden Single.
+
+		From a human viewpoint, each of these techniques is different, but a program
+		would probably just compute all candidates and check for Naked and Hidden Singles.
+		If we want to report to the user as though we had applied each of the above techniques
+		in turn, some extra checking might be needed.
+
+		The next set of human techniques involve further restricting the possibilities for a
+		cell.
+
+		- Naked Pairs: Two cells in a row which can each have only the same two values
+		  implies no other cell in that unit can have those values.  Those values can
+		  then be eliminated from any cells which neighbor both original cells.
+
+		  Having found a Naked Pair in a Unit, when there are only two other empty cells
+		  in the Unit, those latter cells must contain the remaining available symbol
+		  values, i.e., another pair.  And if there are three empty cells remaining, then
+		  the three remaining values (i.e., a Triple) are all that can be placed there.
+
+		- Locked Candidates (direct pointing): It may appear that symbol S can go
+		  in more than one row within block B, but a neighboring block
+		  must place S in row R ... thus, S can be eliminated from row R within B.
+		  Of course, this works for columns also.
+
+		With these techniques, most newspaper puzzles are solvable.
+
+
+		
  */
  
 void sgame::solve()
@@ -30,7 +75,7 @@ void sgame::solve()
 				column
 			locked candidates (direct pointing)
 			
-		This iniitial version of the program tries to find
+		This initial version of the program tries to find
 		a solution without filling in all candidates, although
 		pairs in a block/row/column may be recognized
 	*/
@@ -55,7 +100,7 @@ bool sgame::solve_helper(unsigned row, unsigned col) {
 				column
 			locked candidates (direct pointing)
 			
-		This iniitial version of the program tries to find
+		This initial version of the program tries to find
 		a solution without filling in all candidates, although
 		pairs in a block/row/column may be recognized
 	*/
