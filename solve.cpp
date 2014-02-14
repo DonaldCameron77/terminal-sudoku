@@ -85,6 +85,13 @@ void sgame::solve()
 		pairs in a block/row/column may be recognized
 	*/
 
+	// Techniques go here in order, in a loop. If technique k succeeds,
+	// then the remaining ones are skipped (issue continue stmt),
+	// unless puzzle is completed.  If all techs fail, fall out of
+	// loop and do backtracking (i.e., call solve_helper()).
+	// Program this part top-down.
+
+	// Backtracking algorithm - guaranteed to work if there's a solution
 	if (solve_helper(0, 0)) {
 		write_line((const char *)"\nSolution");
 		display_grid(puzzle);

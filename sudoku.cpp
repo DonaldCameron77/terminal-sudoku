@@ -50,23 +50,3 @@ void sgame::init_grid( std::vector<unsigned> & inbuf )
 
 // EOF
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
