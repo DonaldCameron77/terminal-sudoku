@@ -55,13 +55,13 @@ int main(int argc, char *argv[])
 							// entire execution?
 	get_puzzle(ifs, givens);
 	
-// #ifdef DEBUG
+#ifdef DEBUG
 	cout << "size of givens vector: " << givens.size() << endl;
 	for (unsigned i = 0; i < givens.size(); i++) {
 		cout << givens[i];
 	}
 	cout << endl;
-// #endif
+#endif
 
 	puzzle.init_grid(givens);
 	display_grid(puzzle);

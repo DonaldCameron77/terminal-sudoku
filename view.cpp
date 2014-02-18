@@ -51,6 +51,8 @@ void pretty_print( pstate state,
 	static const char * rowsep = "|***|***|***|";
 	static const char colsep = '|';
 
+	cout << "\n";
+
 	// rows and columns are 0-based
 	if (col == 0) {
 		if (state == before && (row == 0 || row == 3 || row == 6)) {

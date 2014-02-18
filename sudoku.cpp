@@ -7,9 +7,9 @@
 
 // using namespace sudoku;
 
-cell grid_iter::next( sgame & puzzle )
+cell & grid_iter::next( sgame & puzzle )
 {
-	cell c = puzzle.grid[row][col++];
+	cell & c = puzzle.grid[row][col++];
 	if (col == SEDGE) {
 		++row;
 		col = 0;

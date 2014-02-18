@@ -63,7 +63,7 @@
 		// subsequent items.  How will last() work?
 		// THESE METHODS RETURN CELLS BY VALUE!?!
 		grid_iter() { row = col = 0; }
-		cell next ( sgame & puzzle );
+		cell & next ( sgame & puzzle );
 		bool end ();
 	};
 
