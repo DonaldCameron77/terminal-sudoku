@@ -1,7 +1,6 @@
 
 /*  Sudoku controller - this version assumes puzzle givens are
-    supplied via a command-line argument referencing a file, or
-    via stdin
+    supplied via a command-line argument referencing a file.
 */
     
 #include <iostream>
@@ -45,6 +44,10 @@ int main(int argc, char *argv[])
 	}
 	
 	ifstream ifs(argv[1]);
+	if (!ifs) {
+		cout << "Can't open input file -- exiting\n" << endl;
+		return 1;
+	}
 	
 	vector<unsigned> givens; // temp storage for initial board
 							// better to not have this in main,

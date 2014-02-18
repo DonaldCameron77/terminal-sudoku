@@ -21,14 +21,21 @@
 	class cell {
    		unsigned val; // init to zero
    		bool given;  // givens are not changeable
-   		// may eventually have a bitset for candidates here
+		friend class sgame;
+		// prog_candiates are cell possibles for the program's use.
+		// If the user enters his own candidates, it will be into
+		// a parallel data structure.
+		// For now, we will only maintain this vector for cells
+		// not containing settled values.  This vector is initialized
+		// in sudoku.h - sgame::init_grid()
+   		std::vector<bool> prog_cand; // do we want a map instead?
    	public:
    		cell() {} // do we need this default for resize of grid?
-   		cell( unsigned value, bool is_given)
-   			: val(value), given(is_given) {}
+   		cell( unsigned value, bool is_given ) 
+   			: val(value), given(is_given) {} 
    		void set_val( unsigned v ) { val = v; }
-   		unsigned get_val() { return val; }
-   		// bool get_given()	{return given; }
+		unsigned get_val() { return val; }
+		// bool get_given()	{return given; }
 	};
 
 	class sgame {
@@ -54,7 +61,7 @@
 		// Usage: declare an object of this type, call first() to
 		// init the iteration and get the first item.  Call next() for
 		// subsequent items.  How will last() work?
-		// These methods return cells by value.
+		// THESE METHODS RETURN CELLS BY VALUE!?!
 		grid_iter() { row = col = 0; }
 		cell next ( sgame & puzzle );
 		bool end ();

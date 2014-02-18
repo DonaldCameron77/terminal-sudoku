@@ -93,7 +93,7 @@ void sgame::solve()
 
 	// Backtracking algorithm - guaranteed to work if there's a solution
 	if (solve_helper(0, 0)) {
-		write_line((const char *)"\nSolution");
+		write_line((const char *)"\nSolution:");
 		display_grid(puzzle);
 	}
 	else

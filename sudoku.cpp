@@ -36,13 +36,19 @@ sgame::sgame() {
 void sgame::init_grid( std::vector<unsigned> & inbuf )
 {	
 	// Givens (and empty cells denoted by 0) appear in inbuf
-	// in row_major order. We are guananteed to have a total
+	// in row_major order. We are guaranteed to have a total
 	// of 81 items in inbuf in the range 0..9.
 	
 	for (unsigned row = 0; row < SEDGE; row++) {
-		for (unsigned col = 0; col < SEDGE; col++) {
+		for (unsigned col = 0; col < SEDGE; col++)
+		{
 			unsigned value = inbuf[ row * SEDGE + col ];
 			cell ctmp(value, value != 0);
+			if (value == 0) {
+				// cell does not contain "given" (initial value),
+				// so initialize a candidate vector (to default val of true)
+				ctmp.prog_cand.resize(SEDGE+1, true);
+			}
 			grid[row][col] = ctmp;
 		}
 	}
