@@ -7,9 +7,9 @@
 
 // using namespace sudoku;
 
-cell & grid_iter::next( sgame & puzzle )
+cell & grid_iter::next( sgame & _puzzle )
 {
-	cell & c = puzzle.grid[row][col++];
+	cell & c = _puzzle.grid[row][col++];
 	if (col == SEDGE) {
 		++row;
 		col = 0;
@@ -47,7 +47,7 @@ void sgame::init_grid( std::vector<unsigned> & inbuf )
 			if (value == 0) {
 				// cell does not contain "given" (initial value),
 				// so initialize a candidate vector (to default val of true)
-				ctmp.prog_cand.resize(SEDGE+1, true);
+				ctmp.prog_cand.resize(SEDGE+1, false); // will reset all later
 			}
 			grid[row][col] = ctmp;
 		}

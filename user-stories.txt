@@ -1,0 +1,14 @@
+By default, I want to see the board after each transformaton is applied, and I want
+to be told what the transformation was.
+
+I want to also have a batch mode where all this stuff is still printed, but the
+program ddoesn't wait for me between each transform.
+
+I also want a batch mode where I just get the solution (but it tells me if it had
+to use backtracking.
+
+I want it to read stdin if there is no input file.
+
+Eventually, I would like it to generate puzzles, and reject those harder than a
+certain level.  It should categorize them according to how hard they are.
+

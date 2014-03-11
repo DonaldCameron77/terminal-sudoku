@@ -36,6 +36,9 @@
    		void set_val( unsigned v ) { val = v; }
 		unsigned get_val() { return val; }
 		// bool get_given()	{return given; }
+		void set_candidate(unsigned val, bool is_cand) {
+		    prog_cand[val] = is_cand;
+		}
 	};
 
 	class sgame {
@@ -44,7 +47,9 @@
 		// block iterator
 		// column iterator
 		// row iterator
-		bool solve_helper(unsigned row, unsigned col);
+		void set_candidates();
+		void set_cell_candidates( unsigned row, unsigned col);
+		bool backtracker(unsigned row, unsigned col);
 		bool valid_insertion(
  			 unsigned value, unsigned row, unsigned col );
 	public:
@@ -63,7 +68,7 @@
 		// subsequent items.  How will last() work?
 		// THESE METHODS RETURN CELLS BY VALUE!?!
 		grid_iter() { row = col = 0; }
-		cell & next ( sgame & puzzle );
+		cell & next ( sgame & _puzzle );
 		bool end ();
 	};
 

@@ -66,7 +66,59 @@ using namespace std;
 		B. Of course, this works for columns also.
 
 		Most newspaper puzzles are solvable with these techniques, 
- */
+*/
+
+// For each value in neighbor cells (row, column, block),
+// remove it from this cell's candidate list
+void sgame::set_cell_candidates( unsigned row, unsigned col)
+{
+    // Similar traversal of neighbors to routine valid_insertion
+    
+    cell & the_cell = grid[row][col];
+    // The grid is [0..8][0..8], but candidates use cell values 1..9
+    // 0 is a dummy vector element to make indexing easier.  Unfortunately,
+    // both ranges use SEDGE.
+    for (unsigned x = 0; x <= SEDGE; ++x) {
+        the_cell.set_candidate(x, true); // reset all candidates
+    }
+    
+    // do column
+ 	for (unsigned r = 0; r < SEDGE; r++) {
+ 		unsigned neighbor_value = grid[r][col].get_val();
+        the_cell.set_candidate(neighbor_value, false);
+ 	}
+ 	
+ 	// do row
+ 	for (unsigned c = 0; c < SEDGE; c++) {
+ 		unsigned neighbor_value = grid[row][c].get_val();
+        the_cell.set_candidate(neighbor_value, false);
+ 	}
+ 	
+ 	// do 3x3 block containing row, col
+ 	unsigned const blocksize = (unsigned)sqrt(SEDGE); // i.e., 3
+ 	
+ 	unsigned const rstart = (row/blocksize) * blocksize;
+ 	unsigned const rlim = rstart + blocksize - 1;
+ 	unsigned const cstart = (col/blocksize) * blocksize;
+ 	unsigned const clim = cstart + blocksize - 1;
+ 	
+ 	for (unsigned r = rstart; r <= rlim; ++r) {
+ 		for (unsigned c = cstart; c <= clim; ++c) {
+ 			unsigned neighbor_value = grid[r][c].get_val();
+ 			the_cell.set_candidate(neighbor_value, false);
+ 		}
+ 	}
+}
+ 
+void sgame::set_candidates()
+{
+    // Do for each cell in grid ...
+    for (unsigned row = 0; row < SEDGE; ++row) {
+        for (unsigned col = 0; col < SEDGE; ++ col) {
+            set_cell_candidates(row, col);
+        }
+    }
+}
  
 void sgame::solve()
 {
@@ -90,9 +142,12 @@ void sgame::solve()
 	// unless puzzle is completed.  If all techs fail, fall out of
 	// loop and do backtracking (i.e., call solve_helper()).
 	// Program this part top-down.
+	
+	set_candidates();
 
 	// Backtracking algorithm - guaranteed to work if there's a solution
-	if (solve_helper(0, 0)) {
+	
+	if (backtracker(0, 0)) {
 		write_line((const char *)"\nSolution:");
 		display_grid(puzzle);
 	}
@@ -101,7 +156,7 @@ void sgame::solve()
 		
 }
  
-bool sgame::solve_helper(unsigned row, unsigned col) {
+bool sgame::backtracker(unsigned row, unsigned col) {
 	/* Pseudocode
 		try in order
 			Full House (only choice)
@@ -132,7 +187,7 @@ bool sgame::solve_helper(unsigned row, unsigned col) {
 	
 	if (grid[row][col].get_val() != 0) {
 		// nonempty cell - advance to next column
-		return solve_helper(row, col+1);
+		return backtracker(row, col+1);
 	}
 	
 	for (unsigned val = 1; val <= SEDGE; ++val) {
@@ -142,7 +197,7 @@ bool sgame::solve_helper(unsigned row, unsigned col) {
 #ifdef DEBUG
 			cout << "grid["<<row<<"]["<<col<<"] set to "<<val<<endl;
 #endif
-			if (solve_helper(row, col+1)) {
+			if (backtracker(row, col+1)) {
 				return true;
 			}
 			else {
@@ -164,7 +219,7 @@ bool sgame::solve_helper(unsigned row, unsigned col) {
  	// Must check the neighbors of row and column - the other row
  	// and column cells, and the 3x3 block
  	
- 	// check row
+ 	// check column
  	for (unsigned r = 0; r < SEDGE; r++) {
  		if (grid[r][col].get_val() == value) {
 #ifdef DEBUG1
@@ -179,7 +234,7 @@ bool sgame::solve_helper(unsigned row, unsigned col) {
  		}
  	}
  	
- 	// check column
+ 	// check row
  	for (unsigned c = 0; c < SEDGE; c++) {
  		if (grid[row][c].get_val() == value) {
  			return false;

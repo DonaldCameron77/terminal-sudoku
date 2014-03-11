@@ -32,6 +32,25 @@ void get_puzzle( ifstream & ifs, vector<unsigned> & givens)
 		}
 	}	
 }
+
+// A puzzle can be initialized in 2 ways:
+// 1a. List of givens from a file on command line.
+// 1b. Like 1a, but reads stdin if a file argument is absent (eventually)
+// 2. Created by the program (eventually).
+void init_puzzle( ifstream & ifs) {
+    vector<unsigned> givens; // tmp storage for given board in input form
+	get_puzzle(ifs, givens); // read the givens from input
+	
+#ifdef DEBUG
+	cout << "size of givens vector: " << givens.size() << endl;
+	for (unsigned i = 0; i < givens.size(); i++) {
+		cout << givens[i];
+	}
+	cout << endl;
+#endif
+
+	puzzle.init_grid(givens); // use givens to initialize the grid
+}
     
 int main(int argc, char *argv[])
 {
@@ -49,22 +68,9 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
-	vector<unsigned> givens; // temp storage for initial board
-							// better to not have this in main,
-							// where it consumes storage for the 
-							// entire execution?
-	get_puzzle(ifs, givens);
-	
-#ifdef DEBUG
-	cout << "size of givens vector: " << givens.size() << endl;
-	for (unsigned i = 0; i < givens.size(); i++) {
-		cout << givens[i];
-	}
-	cout << endl;
-#endif
-
-	puzzle.init_grid(givens);
+	init_puzzle(ifs);
 	display_grid(puzzle);
+	
 	puzzle.solve();
 	// display_grid(puzzle);
 	
