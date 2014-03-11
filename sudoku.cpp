@@ -26,11 +26,20 @@ bool grid_iter::end() {
 
 sgame puzzle; // ack! a global variable? what is better?
 
-sgame::sgame() {
+sgame::sgame()
+{
 	// private constructor - will resize grid to SEDGE x SEDGE (9x9)
 	grid.resize(SEDGE);
-	for (size_t i = 0; i < SEDGE; i++)
+	for (size_t i = 0; i < SEDGE; ++i)
 		grid[i].resize(SEDGE);
+	
+/*
+	// use this to initialize candidates	
+	for (size_t i = 1; i <= SEDGE; ++i) {
+	    all_set.insert(i);
+	}
+*/
+    all_set = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 }
 				
 void sgame::init_grid( std::vector<unsigned> & inbuf )
@@ -44,11 +53,13 @@ void sgame::init_grid( std::vector<unsigned> & inbuf )
 		{
 			unsigned value = inbuf[ row * SEDGE + col ];
 			cell ctmp(value, value != 0);
+/* not needed for set implementation of candidates - clean up soon
 			if (value == 0) {
 				// cell does not contain "given" (initial value),
 				// so initialize a candidate vector (to default val of true)
 				ctmp.prog_cand.resize(SEDGE+1, false); // will reset all later
 			}
+*/
 			grid[row][col] = ctmp;
 		}
 	}

@@ -68,34 +68,48 @@ using namespace std;
 		Most newspaper puzzles are solvable with these techniques, 
 */
 
-// For each value in neighbor cells (row, column, block),
-// remove it from this cell's candidate list
+void sgame::reset_candidates(unsigned row, unsigned col) {
+    grid[row][col].reset_cands(all_set);
+}
+
+// For each value in cells neighboring an empty cell,
+// remove its value from this cell's candidate list.
 void sgame::set_cell_candidates( unsigned row, unsigned col)
 {
-    // Similar traversal of neighbors to routine valid_insertion
     
     cell & the_cell = grid[row][col];
+    if (the_cell.get_val() != 0) return; // nonempty cells don't have/need candidates
+    
+/* old vector implementation - clean this up soon
     // The grid is [0..8][0..8], but candidates use cell values 1..9
     // 0 is a dummy vector element to make indexing easier.  Unfortunately,
     // both ranges use SEDGE.
     for (unsigned x = 0; x <= SEDGE; ++x) {
-        the_cell.set_candidate(x, true); // reset all candidates
+        the_cell.remove_candidate(x); // reset all candidates
     }
+*/
+    // will fail to compile until implemented.  This should use set assignment
+    // to copy over a pre_initialized set containing 1..9.  We use this same
+    // canned set for all resets.
+    reset_candidates(row, col);
     
     // do column
  	for (unsigned r = 0; r < SEDGE; r++) {
  		unsigned neighbor_value = grid[r][col].get_val();
-        the_cell.set_candidate(neighbor_value, false);
+ 		// and by the way we don't wanna call this with zero (probably handled
+ 		// by above assert, nor do we want to barf if the value has already
+ 		// been removed, which could easily happen down below
+        the_cell.remove_candidate(neighbor_value);
  	}
  	
  	// do row
  	for (unsigned c = 0; c < SEDGE; c++) {
  		unsigned neighbor_value = grid[row][c].get_val();
-        the_cell.set_candidate(neighbor_value, false);
+        the_cell.remove_candidate(neighbor_value);
  	}
  	
  	// do 3x3 block containing row, col
- 	unsigned const blocksize = (unsigned)sqrt(SEDGE); // i.e., 3
+ 	static unsigned const blocksize = (unsigned)sqrt(SEDGE); // i.e., 3
  	
  	unsigned const rstart = (row/blocksize) * blocksize;
  	unsigned const rlim = rstart + blocksize - 1;
@@ -105,12 +119,12 @@ void sgame::set_cell_candidates( unsigned row, unsigned col)
  	for (unsigned r = rstart; r <= rlim; ++r) {
  		for (unsigned c = cstart; c <= clim; ++c) {
  			unsigned neighbor_value = grid[r][c].get_val();
- 			the_cell.set_candidate(neighbor_value, false);
+ 			the_cell.remove_candidate(neighbor_value);
  		}
  	}
 }
  
-void sgame::set_candidates()
+void sgame::set_all_candidates()
 {
     // Do for each cell in grid ...
     for (unsigned row = 0; row < SEDGE; ++row) {
@@ -143,7 +157,7 @@ void sgame::solve()
 	// loop and do backtracking (i.e., call solve_helper()).
 	// Program this part top-down.
 	
-	set_candidates();
+	set_all_candidates();
 
 	// Backtracking algorithm - guaranteed to work if there's a solution
 	
