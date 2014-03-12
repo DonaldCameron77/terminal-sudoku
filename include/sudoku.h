@@ -17,10 +17,10 @@
 
 	// cell and sgame are not initialized by constructors
 	
-	class cell {
+	class Cell {
    		unsigned val; // init to zero
    		bool given;  // givens are not changeable
-		friend class sgame;
+		friend class Sgame;
 		// prog_candiates are cell possibles for the program's use.
 		// If the user enters his own candidates, it will be into
 		// a parallel data structure TBD.
@@ -30,17 +30,13 @@
 		// in sudoku.h - sgame::init_grid()
    		std::set<unsigned> prog_cand;
    	public:
-   		cell() {} // do we need this default for resize of grid?
-   		cell( unsigned value, bool is_given ) 
+   		Cell() {} // do we need this default for resize of grid?
+   		Cell( unsigned value, bool is_given ) 
    			: val(value), given(is_given) {} 
    		void set_val( unsigned v ) { val = v; }
 		unsigned get_val() { return val; }
 		// bool get_given()	{return given; }
-/* clean up later
-		void set_candidate(unsigned val, bool is_cand) {
-		    prog_cand[val] = is_cand;
-		}
-*/
+
 		// Always remove individual candidates.  We reset prog_cand to the
 		// initial "all true" state by copying an entire candidate set.
 		// Note: we are not checking that we are erasing an element no
@@ -51,11 +47,12 @@
 		void reset_cands(std::set<unsigned> & s) { // only call with sgame::all_set
 		    prog_cand = s;
 		}
+		bool is_naked_single( unsigned & val);
 	};
 
-	class sgame {
-		std::vector <std::vector <cell> > grid;
-		friend class grid_iter;
+	class Sgame {
+		std::vector <std::vector <Cell> > grid;
+		friend class Grid_iter;
 		// block iterator
 		// column iterator
 		// row iterator
@@ -66,28 +63,29 @@
 		bool backtracker(unsigned row, unsigned col); // solver of last resort
 		bool valid_insertion(
  			 unsigned value, unsigned row, unsigned col );
+		bool try_naked_singles();
 	public:
-		sgame(); // might try singleton pattern eventually
+		Sgame(); // might try singleton pattern eventually
 		void init_grid( std::vector<unsigned> & inbuf );
 		void solve();
 	};
 	
 	// this is not up to STL standards, but it does isolate the View
 	// component from any knowledge of how the grid is stored.
-	class grid_iter {
+	class Grid_iter {
 		size_t row, col;
 	public:
 		// Usage: declare an object of this type, call first() to
 		// init the iteration and get the first item.  Call next() for
 		// subsequent items.  How will last() work?
 		// THESE METHODS RETURN CELLS BY VALUE!?!
-		grid_iter() { row = col = 0; }
-		cell & next ( sgame & _puzzle );
+		Grid_iter() { row = col = 0; }
+		Cell & next ( Sgame & _puzzle );
 		bool end ();
 	};
 
 // defined in sudoku.cpp
-extern sgame puzzle; // ack! a global variable? what is better?
+extern Sgame puzzle; // ack! a global variable? what is better?
 
 // } // namespace sudoku
 

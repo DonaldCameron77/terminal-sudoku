@@ -68,73 +68,34 @@ using namespace std;
 		Most newspaper puzzles are solvable with these techniques, 
 */
 
-void sgame::reset_candidates(unsigned row, unsigned col) {
-    grid[row][col].reset_cands(all_set);
-}
-
-// For each value in cells neighboring an empty cell,
-// remove its value from this cell's candidate list.
-void sgame::set_cell_candidates( unsigned row, unsigned col)
-{
-    
-    cell & the_cell = grid[row][col];
-    if (the_cell.get_val() != 0) return; // nonempty cells don't have/need candidates
-    
-/* old vector implementation - clean this up soon
-    // The grid is [0..8][0..8], but candidates use cell values 1..9
-    // 0 is a dummy vector element to make indexing easier.  Unfortunately,
-    // both ranges use SEDGE.
-    for (unsigned x = 0; x <= SEDGE; ++x) {
-        the_cell.remove_candidate(x); // reset all candidates
-    }
-*/
-    // will fail to compile until implemented.  This should use set assignment
-    // to copy over a pre_initialized set containing 1..9.  We use this same
-    // canned set for all resets.
-    reset_candidates(row, col);
-    
-    // do column
- 	for (unsigned r = 0; r < SEDGE; r++) {
- 		unsigned neighbor_value = grid[r][col].get_val();
- 		// and by the way we don't wanna call this with zero (probably handled
- 		// by above assert, nor do we want to barf if the value has already
- 		// been removed, which could easily happen down below
-        the_cell.remove_candidate(neighbor_value);
- 	}
- 	
- 	// do row
- 	for (unsigned c = 0; c < SEDGE; c++) {
- 		unsigned neighbor_value = grid[row][c].get_val();
-        the_cell.remove_candidate(neighbor_value);
- 	}
- 	
- 	// do 3x3 block containing row, col
- 	static unsigned const blocksize = (unsigned)sqrt(SEDGE); // i.e., 3
- 	
- 	unsigned const rstart = (row/blocksize) * blocksize;
- 	unsigned const rlim = rstart + blocksize - 1;
- 	unsigned const cstart = (col/blocksize) * blocksize;
- 	unsigned const clim = cstart + blocksize - 1;
- 	
- 	for (unsigned r = rstart; r <= rlim; ++r) {
- 		for (unsigned c = cstart; c <= clim; ++c) {
- 			unsigned neighbor_value = grid[r][c].get_val();
- 			the_cell.remove_candidate(neighbor_value);
- 		}
- 	}
-}
- 
-void sgame::set_all_candidates()
-{
-    // Do for each cell in grid ...
+bool Sgame::try_naked_singles() {
+    // for production version, could start at a random block (being sure to still
+    // visit all blocks), but for predictability in development, don't do this!
     for (unsigned row = 0; row < SEDGE; ++row) {
-        for (unsigned col = 0; col < SEDGE; ++ col) {
-            set_cell_candidates(row, col);
+        for (unsigned col = 0; col < SEDGE; ++col) {
+            unsigned val;
+            Cell & the_cell = grid[row][col];
+            if (the_cell.get_val() == 0 && the_cell.is_naked_single(val)) {
+                the_cell.set_val(val);
+/*
+                FIX_ME: set_val numst update neighbor candidates,
+                and must still work correctly in initialization
+                (or do we want two flavors of set_val, b/c we want the
+                grid set first at startup before dealing with initializing
+                candidates.  Maybe place_val() instead of set_val?
+                Also need iterator to go through the neighbors.
+*/
+                cout << "Naked single " << val << 
+                    " placed at (" << row << "," << col << ")\n";
+                display_grid(puzzle);
+                return true;
+            } 
         }
     }
+    return false;
 }
- 
-void sgame::solve()
+
+void Sgame::solve()
 {
 	/* Pseudocode
 		try in order
@@ -158,6 +119,12 @@ void sgame::solve()
 	// Program this part top-down.
 	
 	set_all_candidates();
+	
+	bool changed = true;
+	
+	while (changed) {
+	    if ((changed = try_naked_singles()) == true) continue;
+	}
 
 	// Backtracking algorithm - guaranteed to work if there's a solution
 	
@@ -166,11 +133,11 @@ void sgame::solve()
 		display_grid(puzzle);
 	}
 	else
-		write_line((const char *)"\nSOLVE ATTEMPT FAILED!\n");
+		write_line((const char *)"\n ATTEMPT FAILED!\n");
 		
 }
  
-bool sgame::backtracker(unsigned row, unsigned col) {
+bool Sgame::backtracker(unsigned row, unsigned col) {
 	/* Pseudocode
 		try in order
 			Full House (only choice)
@@ -224,7 +191,7 @@ bool sgame::backtracker(unsigned row, unsigned col) {
 	return false;
 }
  
- bool sgame::valid_insertion(
+ bool Sgame::valid_insertion(
  			 unsigned value, unsigned row, unsigned col )
  {
  	// a trial value has been chosen for a previously-valid

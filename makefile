@@ -15,7 +15,7 @@ ODIR=obj
 _DEPS = sudoku.h view.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = controller.o sudoku.o view.o solve.o
+_OBJ = controller.o sudoku.o view.o solve.o cand.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 

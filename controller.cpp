@@ -37,6 +37,7 @@ void get_puzzle( ifstream & ifs, vector<unsigned> & givens)
 // 1a. List of givens from a file on command line.
 // 1b. Like 1a, but reads stdin if a file argument is absent (eventually)
 // 2. Created by the program (eventually).
+
 void init_puzzle( ifstream & ifs) {
     vector<unsigned> givens; // tmp storage for given board in input form
 	get_puzzle(ifs, givens); // read the givens from input

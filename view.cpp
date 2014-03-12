@@ -11,7 +11,7 @@
 
 using namespace std;
 
-// To reduce coupling between model (classes sgame and cell) and the
+// To reduce coupling between model (classes Sgame and Cell) and the
 // View component, there must be iterators that allow access to the
 // grid cell values in appropriate order (row-major).
 
@@ -79,13 +79,21 @@ void pretty_print( pstate state,
 }
 
 
-void display_grid(sgame & puzzle)
+void display_grid( Sgame & puzzle )
 {
-	grid_iter g_iter;
-	cell c;
+	Grid_iter g_iter;
+	Cell c;
 	
 	for (unsigned row = 0; row < SEDGE; ++row) {
 		for (unsigned col = 0; col < SEDGE; ++col) {
+			// FIX-ME: This is brain-damaged, stupid, and redundant.
+			// If using an iterator, you should not need to
+			// specifically index row/col.  If, OTOH,
+			// you need rows and cols, and if the iterator
+			// can't or shouldn't provide them, then you don't use
+			// an iterator.  Also, pretty print should be simpler
+			// and just print the whole grid on one call - duplicated
+			// code be damned.
 			c = g_iter.next(puzzle);
 			unsigned v = c.get_val();
 			pretty_print(before, row, col);

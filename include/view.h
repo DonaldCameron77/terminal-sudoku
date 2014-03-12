@@ -7,7 +7,7 @@
 
 #include "sudoku.h"
 
-extern void display_grid( sgame & puzzle );
+extern void display_grid( Sgame & puzzle );
 
 extern void write_line( const char * p );
 
