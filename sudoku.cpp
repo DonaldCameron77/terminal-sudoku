@@ -26,14 +26,18 @@ bool Grid_iter::end() {
 
 Sgame puzzle; // ack! a global variable? what is better?
 
+// dummy with all vals set, for initializing candidate sets
+std::set<unsigned> Sgame::all_set = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+unsigned Sgame::known_cell_count = 0;  // Sum of given and solved cells.
+
+
 Sgame::Sgame()
 {
-	// private constructor - will resize grid to SEDGE x SEDGE (9x9)
+	// expand the grid to SEDGE x SEDGE (9x9)
 	grid.resize(SEDGE);
 	for (size_t i = 0; i < SEDGE; ++i)
 		grid[i].resize(SEDGE);
-	
-    all_set = { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; // loovveee C++11 braced init lists for containers!
 }
 				
 void Sgame::init_grid( std::vector<unsigned> & inbuf )
@@ -46,7 +50,9 @@ void Sgame::init_grid( std::vector<unsigned> & inbuf )
 		for (unsigned col = 0; col < SEDGE; col++)
 		{
 			unsigned value = inbuf[ row * SEDGE + col ];
-			Cell ctmp(value, value != 0);
+			bool is_given = (value != 0);
+			if (is_given) ++known_cell_count;
+			Cell ctmp(value, is_given);
 			grid[row][col] = ctmp;
 		}
 	}

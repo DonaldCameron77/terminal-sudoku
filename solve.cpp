@@ -73,6 +73,7 @@ void Sgame::place_val(unsigned val, unsigned row, unsigned col) {
     Cell & the_cell = grid[row][col];
     assert(the_cell.get_val() == 0);
     the_cell.set_val(val);
+	++known_cell_count;
     
     // now remove val from neighbors (row, column, block) candidate sets
     // check column
@@ -157,6 +158,12 @@ void Sgame::solve()
 	
 	while (changed) {
 	    if ((changed = try_naked_singles()) == true) continue;
+	}
+
+	if (known_cell_count == 81) {
+		write_line((const char *)"\nSolution (obtained without backtracking):");
+		display_grid(puzzle);
+		return;
 	}
 
 	// Backtracking algorithm - guaranteed to work if there's a solution

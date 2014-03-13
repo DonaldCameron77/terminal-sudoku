@@ -37,7 +37,7 @@
 		// bool get_given()	{return given; }
    		void set_val( unsigned v ) { val = v; }
 
-		// Always remove individual candidates.  We reset prog_cand to the
+		// Remove individual candidates.  We reset prog_cand to the
 		// initial "all true" state by copying an entire candidate set.
 		// Note: we are not checking that we are erasing an element no
 		// longer present in the set.  But apparently that's ok.
@@ -53,7 +53,14 @@
 	class Sgame
 	{
 		std::vector <std::vector <Cell> > grid;
-		std::set<unsigned> all_set; //dummy with all vals set to init candidate sets
+
+		// This should be a class, not an instance variable.  Also, this increases
+		// coupling/breaks encapsulation between Sgame and Cell.  Could this be
+		// a static (i.e., class variable) in Cell?  Here it won't matter cuz there
+		// is only one puzzle, but there are 81 Cells.  FIX_ME
+		static std::set<unsigned> all_set; // dummy with all vals set to init candidate sets
+
+		static unsigned known_cell_count;  // also a class variable.  Sum of given and solved cells.
 
 		friend class Grid_iter;
 		// block iterator
