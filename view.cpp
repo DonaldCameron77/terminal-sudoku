@@ -79,7 +79,7 @@ void pretty_print( pstate state,
 }
 
 
-void display_grid( Sgame & puzzle )
+void display_grid( Sgame & _puzzle )
 {
 	Grid_iter g_iter;
 	Cell c;
@@ -94,7 +94,7 @@ void display_grid( Sgame & puzzle )
 			// an iterator.  Also, pretty print should be simpler
 			// and just print the whole grid on one call - duplicated
 			// code be damned.
-			c = g_iter.next(puzzle);
+			c = g_iter.next(_puzzle);
 			unsigned v = c.get_val();
 			pretty_print(before, row, col);
 			if (v == 0)

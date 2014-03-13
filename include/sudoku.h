@@ -33,9 +33,9 @@
    		Cell() {} // do we need this default for resize of grid?
    		Cell( unsigned value, bool is_given ) 
    			: val(value), given(is_given) {} 
-   		void set_val( unsigned v ) { val = v; }
 		unsigned get_val() { return val; }
 		// bool get_given()	{return given; }
+   		void set_val( unsigned v ) { val = v; }
 
 		// Always remove individual candidates.  We reset prog_cand to the
 		// initial "all true" state by copying an entire candidate set.
@@ -50,16 +50,23 @@
 		bool is_naked_single( unsigned & val);
 	};
 
-	class Sgame {
+	class Sgame
+	{
 		std::vector <std::vector <Cell> > grid;
+		std::set<unsigned> all_set; //dummy with all vals set to init candidate sets
+
 		friend class Grid_iter;
 		// block iterator
 		// column iterator
 		// row iterator
-		std::set<unsigned> all_set; //dummy with all vals set to init candidate sets
-		void set_all_candidates(); // set candidates for entire grid
-		void reset_candidates(unsigned row, unsigned col);
-		void set_cell_candidates( unsigned row, unsigned col);
+
+		void init_all_candidates(); // set candidates for entire grid
+		void reset_candidates(unsigned row, unsigned col); // set all cand to true in cell
+														   // b4 calling init_all_cand
+		void init_cell_candidates( unsigned row, unsigned col); // prune based on neighbors
+
+		// Stuff val in a solved cell, and remove val from neighbor's candidates
+		void place_val(unsigned val, unsigned row, unsigned col);
 		bool backtracker(unsigned row, unsigned col); // solver of last resort
 		bool valid_insertion(
  			 unsigned value, unsigned row, unsigned col );

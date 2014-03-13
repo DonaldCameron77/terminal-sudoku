@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <cassert>
 
 #include "sudoku.h"
 #include "view.h"
@@ -68,6 +69,46 @@ using namespace std;
 		Most newspaper puzzles are solvable with these techniques, 
 */
 
+void Sgame::place_val(unsigned val, unsigned row, unsigned col) {
+    Cell & the_cell = grid[row][col];
+    assert(the_cell.get_val() == 0);
+    the_cell.set_val(val);
+    
+    // now remove val from neighbors (row, column, block) candidate sets
+    // check column
+ 	for (unsigned r = 0; r < SEDGE; r++) {
+ 	    Cell & tmp_cell = grid[r][col];
+ 		if (tmp_cell.get_val() == 0) {
+            tmp_cell.remove_candidate(val);
+ 		}
+ 	}
+ 	
+ 	// check row
+ 	for (unsigned c = 0; c < SEDGE; c++) {
+ 	    Cell & tmp_cell = grid[row][c];
+ 		if (tmp_cell.get_val() == 0) {
+ 			tmp_cell.remove_candidate(val);
+ 		}
+ 	}
+ 	 
+ 	// check block
+ 	unsigned const blocksize = (unsigned)sqrt(SEDGE); // i.e., 3
+ 	
+ 	unsigned const rstart = (row/blocksize) * blocksize;
+ 	unsigned const rlim = rstart + blocksize - 1;
+ 	unsigned const cstart = (col/blocksize) * blocksize;
+ 	unsigned const clim = cstart + blocksize - 1;
+ 	
+ 	for (unsigned r = rstart; r <= rlim; ++r) {
+ 		for (unsigned c = cstart; c <= clim; ++c) {
+ 		    Cell & tmp_cell = grid[r][c];
+ 			if (tmp_cell.get_val() == 0) {
+ 				tmp_cell.remove_candidate(val);
+ 			}
+ 		}
+ 	}    
+}
+
 bool Sgame::try_naked_singles() {
     // for production version, could start at a random block (being sure to still
     // visit all blocks), but for predictability in development, don't do this!
@@ -76,16 +117,8 @@ bool Sgame::try_naked_singles() {
             unsigned val;
             Cell & the_cell = grid[row][col];
             if (the_cell.get_val() == 0 && the_cell.is_naked_single(val)) {
-                the_cell.set_val(val);
-/*
-                FIX_ME: set_val numst update neighbor candidates,
-                and must still work correctly in initialization
-                (or do we want two flavors of set_val, b/c we want the
-                grid set first at startup before dealing with initializing
-                candidates.  Maybe place_val() instead of set_val?
-                Also need iterator to go through the neighbors.
-*/
-                cout << "Naked single " << val << 
+                place_val(val, row, col);
+                cout << "\nNaked single " << val << 
                     " placed at (" << row << "," << col << ")\n";
                 display_grid(puzzle);
                 return true;
@@ -118,7 +151,7 @@ void Sgame::solve()
 	// loop and do backtracking (i.e., call solve_helper()).
 	// Program this part top-down.
 	
-	set_all_candidates();
+	init_all_candidates();
 	
 	bool changed = true;
 	
@@ -240,7 +273,6 @@ bool Sgame::backtracker(unsigned row, unsigned col) {
  	
  	return true; // no conflict found
  }  			
-
 
 // EOF
 

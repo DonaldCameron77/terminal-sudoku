@@ -33,13 +33,7 @@ Sgame::Sgame()
 	for (size_t i = 0; i < SEDGE; ++i)
 		grid[i].resize(SEDGE);
 	
-/*
-	// use this to initialize candidates	
-	for (size_t i = 1; i <= SEDGE; ++i) {
-	    all_set.insert(i);
-	}
-*/
-    all_set = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    all_set = { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; // loovveee C++11 braced init lists for containers!
 }
 				
 void Sgame::init_grid( std::vector<unsigned> & inbuf )

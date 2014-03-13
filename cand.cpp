@@ -15,7 +15,7 @@ void Sgame::reset_candidates(unsigned row, unsigned col) {
 
 // For each value in cells neighboring an empty cell,
 // remove its value from this cell's candidate list.
-void Sgame::set_cell_candidates( unsigned row, unsigned col )
+void Sgame::init_cell_candidates( unsigned row, unsigned col )
 {
     
     Cell & the_cell = grid[row][col];
@@ -55,27 +55,21 @@ void Sgame::set_cell_candidates( unsigned row, unsigned col )
  	}
 }
  
-void Sgame::set_all_candidates()
+void Sgame::init_all_candidates()
 {
     // Do for each cell in grid ...
     for (unsigned row = 0; row < SEDGE; ++row) {
         for (unsigned col = 0; col < SEDGE; ++ col) {
-            set_cell_candidates(row, col);
+            init_cell_candidates(row, col);
         }
     }
 }
 
-bool Cell::is_naked_single( unsigned & val) {
+bool Cell::is_naked_single( unsigned & sval ) {
 	if (prog_cand.size() != 1) return false;
-/*
-	for (auto it = prog_cand.begin(); it != prog_cand.end(); it++) {
-		if (it->find(
-	}
-*/
 	auto it = prog_cand.begin(); // best way to get single unknown val?
-	val = *it;
+	sval = *it;
 	return true;
 }
-
 // EOF
 
