@@ -34,7 +34,6 @@
    		Cell( unsigned value, bool is_given ) 
    			: val(value), given(is_given) {} 
 		unsigned get_val() { return val; }
-		// bool get_given()	{return given; }
    		void set_val( unsigned v ) { val = v; }
 
 		// Remove individual candidates.  We reset prog_cand to the
@@ -44,10 +43,13 @@
 		void remove_candidate(unsigned sval) {
 			prog_cand.erase(sval);
 		}
+
+		// set all candidates during initialization before pruning based on neighbors
 		void reset_cands(std::set<unsigned> & s) { // only call with sgame::all_set
 		    prog_cand = s;
 		}
 		bool is_naked_single( unsigned & val);
+		bool cand_is_present( unsigned v) { return prog_cand.count(v); }
 	};
 
 	class Sgame
@@ -78,6 +80,8 @@
 		bool valid_insertion(
  			 unsigned value, unsigned row, unsigned col );
 		bool try_naked_singles();
+		bool try_hidden_singles();
+		bool is_hidden_single(unsigned v, unsigned row, unsigned col);
 	public:
 		Sgame(); // might try singleton pattern eventually
 		void init_grid( std::vector<unsigned> & inbuf );

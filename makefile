@@ -5,7 +5,7 @@
 IDIR =include
 CPP=clang++
 # DEBUGFLAGS=-DDEBUG
-CPPFLAGS=-I$(IDIR) -g -std=c++11 -stdlib=libc++ -Weverything -Wno-logical-op-parentheses -Wno-c++98-compat -Wno-missing-prototypes
+CPPFLAGS=-I$(IDIR) -g -std=c++11 -stdlib=libc++ -Weverything -Wno-logical-op-parentheses -Wno-c++98-compat -Wno-missing-prototypes -Wno-padded -Wno-global-constructors -Wno-exit-time-destructors 
 
 ODIR=obj
 # LDIR =../lib

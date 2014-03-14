@@ -69,11 +69,21 @@ using namespace std;
 		Most newspaper puzzles are solvable with these techniques, 
 */
 
-void Sgame::place_val(unsigned val, unsigned row, unsigned col) {
+void Sgame::place_val(unsigned val, unsigned row, unsigned col)
+{
     Cell & the_cell = grid[row][col];
     assert(the_cell.get_val() == 0);
     the_cell.set_val(val);
+    
+    // Nuke the solved cell's candidates.  Candidates for solved cells might be needed
+    // if, e.g., the user "unsolves" the cell, but since we are not updating candidates
+    // for solved cells while placing other solutions, if we need a previously solved
+    // cell's candidates we should just recompute them.
+    the_cell.prog_cand.clear();
 	++known_cell_count;
+    
+    // FIX_ME any place we're traversing neigbors, we are
+    // looking at cells twice if they are in row & block and col & block
     
     // now remove val from neighbors (row, column, block) candidate sets
     // check column
@@ -92,7 +102,7 @@ void Sgame::place_val(unsigned val, unsigned row, unsigned col) {
  		}
  	}
  	 
- 	// check block
+ 	// check block -- FIX_ME this is crying out for an iterator
  	unsigned const blocksize = (unsigned)sqrt(SEDGE); // i.e., 3
  	
  	unsigned const rstart = (row/blocksize) * blocksize;
@@ -110,8 +120,10 @@ void Sgame::place_val(unsigned val, unsigned row, unsigned col) {
  	}    
 }
 
-bool Sgame::try_naked_singles() {
-    // for production version, could start at a random block (being sure to still
+bool Sgame::try_naked_singles()
+{
+	// Attempt to solve one empty cell via naked singles.
+    // For production version, could start at a random block (being sure to still
     // visit all blocks), but for predictability in development, don't do this!
     for (unsigned row = 0; row < SEDGE; ++row) {
         for (unsigned col = 0; col < SEDGE; ++col) {
@@ -119,7 +131,7 @@ bool Sgame::try_naked_singles() {
             Cell & the_cell = grid[row][col];
             if (the_cell.get_val() == 0 && the_cell.is_naked_single(val)) {
                 place_val(val, row, col);
-                cout << "\nNaked single " << val << 
+                cout << "\nSolved # " << known_cell_count << ": Naked single " << val << 
                     " placed at (" << row << "," << col << ")\n";
                 display_grid(puzzle);
                 return true;
@@ -127,6 +139,88 @@ bool Sgame::try_naked_singles() {
         }
     }
     return false;
+}
+
+bool Sgame::is_hidden_single(unsigned v, unsigned row, unsigned col) {
+    // return true if v is NOT present in a neighboring house (row, col, or block)
+    // of the input location grid[row,col]
+    
+    // FIX_ME any place we're traversing neigbors, we are
+    // looking at cells twice if they are in row & block and col & block
+    
+    // check row
+    for (unsigned c = 0; c < SEDGE; ++c) {
+        // skip our own self, of course 8-)
+        if (c != col && grid[row][c].cand_is_present(v)) {
+            goto row_fail;
+        }
+    }
+    return true;    // v not present elsewhere in row
+row_fail: ;
+
+    // check column
+    for (unsigned r = 0; r < SEDGE; ++r) {
+        if (r != row && grid[r][col].cand_is_present(v)) {
+            goto column_fail;
+        }
+    }
+    return true;    // v not present elsewhere in row
+column_fail: ;
+
+ 	// check block - FIX_ME devise an iterator
+ 	unsigned const blocksize = (unsigned)sqrt(SEDGE); // i.e., 3
+ 	
+ 	unsigned const rstart = (row/blocksize) * blocksize;
+ 	unsigned const rlim = rstart + blocksize - 1;
+ 	unsigned const cstart = (col/blocksize) * blocksize;
+ 	unsigned const clim = cstart + blocksize - 1;
+ 	
+ 	for (unsigned r = rstart; r <= rlim; ++r) {
+ 		for (unsigned c = cstart; c <= clim; ++c) {
+ 		    if (!(r == row && c == col) && grid[r][c].cand_is_present(v)) {
+ 			    return false; // v present elsewhere in block --> fail
+ 			}
+ 		}
+ 	}
+ 	return true;    
+}
+
+bool Sgame::try_hidden_singles()
+{
+	// Attempt to solve one empty cell via hidden singles.
+	// If there is only one instance of a candidate in a row, column, or block,
+	// and the cell in question has other candidates too, that value
+	// is a hidden single and the value is the solution for the cell
+	
+	/*  Approach:
+	        for each empty cell c in grid (might use grid iterator instead
+	            of an extra level of loop nesting ... FIX_ME)
+	            for each candidate c in cell c having more than one candidate
+	                if c is not present elsewhere in row it is a hidden single
+	                else if c is not present elsewhere in column it is a hidden single
+	                else if c is not present elsewhere in block it is a hidden single
+	*/
+	
+	for (unsigned row = 0; row < SEDGE; ++row) {
+	    for (unsigned col = 0; col < SEDGE; ++col) {
+	        Cell & the_cell = grid[row][col];
+	        if (the_cell.get_val() != 0) continue;
+	        for (unsigned v = 1; v <= SEDGE; ++v) {
+	            if (the_cell.prog_cand.count(v)) {
+	                // v is a candidate so see if it's NOT in row,
+	                //  or NOT in col, or NOT in block
+	                if (is_hidden_single(v, row, col)) {
+	                    place_val(v, row, col);
+	                    cout << "\nSolved # " << known_cell_count << ": Hidden single "
+	                        << v << " placed at (" << row << "," << col << ")\n";
+                        display_grid(puzzle);
+                        return true;
+	                }
+	            }
+	        }
+	    }
+	}
+	return false;
 }
 
 void Sgame::solve()
@@ -156,17 +250,25 @@ void Sgame::solve()
 	
 	bool changed = true;
 	
+	// FIX_ME issues with known_cell_count == CELL_CT plus both should be renamed
+	// .. maybe solved_cell_count (even though givens are not "solved," and TOTAL_CELLS?
 	while (changed) {
-	    if ((changed = try_naked_singles()) == true) continue;
+	    if ((changed = try_naked_singles())) {
+	        continue;
+	    }
+	    if (known_cell_count == CELL_CT) break;
+	    if ((changed = try_hidden_singles())) {
+	        continue;
+	    }
 	}
 
-	if (known_cell_count == 81) {
+	if (known_cell_count == CELL_CT) {
 		write_line((const char *)"\nSolution (obtained without backtracking):");
 		display_grid(puzzle);
 		return;
 	}
 
-	// Backtracking algorithm - guaranteed to work if there's a solution
+	// Invoke backtracking algorithm - guaranteed to work if there's a solution
 	
 	if (backtracker(0, 0)) {
 		write_line((const char *)"\nSolution:");
